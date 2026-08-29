@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>CloudOps Incident Portal</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', path='/style.css') }}"
+    >
+</head>
+
+<body>
+    <aside class="sidebar">
+        <div class="logo">
+            <div class="logo-icon">CO</div>
+
+            <div>
+                <h2>CloudOps</h2>
+                <p>COMMAND CENTER</p>
+            </div>
+        </div>
+
+        <nav>
+            <button
+                class="nav-button active"
+                data-page="dashboard"
+            >
+                Dashboard
+            </button>
+
+            <button
+                class="nav-button"
+                data-page="incidents"
+            >
+                Incidents
+                <span id="incident-count">0</span>
+            </button>
+
+            <button
+                class="nav-button"
+                data-page="services"
+            >
+                Services
+            </button>
+        </nav>
+
+        <div class="environment-card">
+            <p class="environment-status">
+                ● Production
+            </p>
+
+            <strong>Cluster connected</strong>
+            <small>k8s-cloudops-prod</small>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header>
+            <div>
+                <p class="breadcrumb">
+                    OPERATIONS / PRODUCTION
+                </p>
+
+                <h1 id="page-title">
+                    System Overview
+                </h1>
+            </div>
+
+            <button
+                class="primary-button"
+                id="open-modal-button"
+            >
+                + Create Incident
+            </button>
+        </header>
+
+        <section
+            id="dashboard-page"
+            class="page active-page"
+        >
+            <div class="health-banner">
+                <div>
+                    <strong>Production environment connected</strong>
+
+                    <p>
+                        Application health and incidents are being monitored.
+                    </p>
+                </div>
+
+                <span>LIVE</span>
+            </div>
+
+            <div class="statistics-grid">
+                <article class="stat-card">
+                    <p>Active Incidents</p>
+                    <h2 id="active-incidents">0</h2>
+                    <span>Requires attention</span>
+                </article>
+
+                <article class="stat-card">
+                    <p>Healthy Services</p>
+                    <h2 id="healthy-services">0</h2>
+                    <span>Production services</span>
+                </article>
+
+                <article class="stat-card">
+                    <p>Average Response Time</p>
+                    <h2 id="average-response">0 ms</h2>
+                    <span>Across all services</span>
+                </article>
+
+                <article class="stat-card">
+                    <p>Platform Uptime</p>
+                    <h2>99.94%</h2>
+                    <span>Last 30 days</span>
+                </article>
+            </div>
+
+            <div class="dashboard-grid">
+                <section class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <h2>Recent Incidents</h2>
+                            <p>Production incident queue</p>
+                        </div>
+
+                        <button
+                            class="link-button"
+                            data-open-page="incidents"
+                        >
+                            View all
+                        </button>
+                    </div>
+
+                    <div id="recent-incidents"></div>
+                </section>
+
+                <section class="panel">
+                    <div class="panel-header">
+                        <div>
+                            <h2>Service Health</h2>
+                            <p>Live workload status</p>
+                        </div>
+                    </div>
+
+                    <div id="dashboard-services"></div>
+                </section>
+            </div>
+        </section>
+
+        <section
+            id="incidents-page"
+            class="page"
+        >
+            <section class="panel">
+                <div class="table-toolbar">
+                    <input
+                        type="search"
+                        id="incident-search"
+                        placeholder="Search incidents or services"
+                    >
+
+                    <select id="status-filter">
+                        <option value="All">All statuses</option>
+                        <option value="Investigating">Investigating</option>
+                        <option value="Monitoring">Monitoring</option>
+                        <option value="Resolved">Resolved</option>
+                    </select>
+                </div>
+
+                <div id="incident-list"></div>
+            </section>
+        </section>
+
+        <section
+            id="services-page"
+            class="page"
+        >
+            <div
+                id="service-grid"
+                class="service-grid"
+            ></div>
+        </section>
+    </main>
+
+    <div
+        id="incident-modal"
+        class="modal-backdrop hidden"
+    >
+        <div class="modal">
+            <div class="modal-header">
+                <div>
+                    <h2>Create Incident</h2>
+
+                    <p>
+                        Register a new production issue.
+                    </p>
+                </div>
+
+                <button id="close-modal-button">
+                    ×
+                </button>
+            </div>
+
+            <form id="incident-form">
+                <label>
+                    Incident title
+
+                    <input
+                        id="incident-title"
+                        required
+                        minlength="3"
+                        placeholder="Example: Login API returning 503"
+                    >
+                </label>
+
+                <div class="form-row">
+                    <label>
+                        Affected service
+
+                        <select
+                            id="incident-service"
+                            required
+                        ></select>
+                    </label>
+
+                    <label>
+                        Priority
+
+                        <select
+                            id="incident-priority"
+                            required
+                        >
+                            <option value="P1">P1 - Critical</option>
+                            <option value="P2" selected>P2 - High</option>
+                            <option value="P3">P3 - Medium</option>
+                            <option value="P4">P4 - Low</option>
+                        </select>
+                    </label>
+                </div>
+
+                <label>
+                    Incident owner
+
+                    <input
+                        id="incident-owner"
+                        required
+                        value="Apurva"
+                    >
+                </label>
+
+                <label>
+                    Description
+
+                    <textarea
+                        id="incident-description"
+                        rows="4"
+                        placeholder="Describe the symptoms and impact"
+                    ></textarea>
+                </label>
+
+                <div class="modal-actions">
+                    <button
+                        type="button"
+                        class="secondary-button"
+                        id="cancel-button"
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="primary-button"
+                    >
+                        Create Incident
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div
+        id="notification"
+        class="notification hidden"
+    ></div>
+
+    <script src="{{ url_for('static', path='/app.js') }}"></script>
+</body>
+</html>
