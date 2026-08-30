@@ -30,7 +30,7 @@ def initialize_database():
 
     connection.execute(
         """
-        CREATE TABLE IF NOT EXISTS services IF NOT EXISTS services (
+        CREATE TABLE IF NOT EXISTS services (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT UNIQUE NOT NULL,
             environment TEXT NOT NULL,
